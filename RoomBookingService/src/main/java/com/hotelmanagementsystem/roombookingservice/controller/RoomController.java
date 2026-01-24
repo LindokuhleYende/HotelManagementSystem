@@ -4,7 +4,6 @@ import com.hotelmanagementsystem.roombookingservice.model.Room;
 import com.hotelmanagementsystem.roombookingservice.Repository.RoomRepo;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -31,7 +30,7 @@ public class RoomController {
     }
 
     @PostMapping
-    public Room save(@RequestBody Room room) {
+    public Room create(@RequestBody Room room) {
         room.setId(null); // ensure create
         Room savedRoom = roomRepo.save(room);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedRoom).getBody();
