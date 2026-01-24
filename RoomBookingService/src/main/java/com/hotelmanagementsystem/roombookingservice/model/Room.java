@@ -24,7 +24,7 @@ public class Room {
     private String room_number;
 
     @Column(nullable = false)
-    private String price_per_night;
+    private Double price_per_night;
 
     @Column(nullable = false)
     private String room_type;
