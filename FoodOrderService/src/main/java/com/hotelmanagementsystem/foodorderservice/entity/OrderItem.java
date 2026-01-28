@@ -1,4 +1,4 @@
 package com.hotelmanagementsystem.foodorderservice.entity;
 
-public class Menu {
+public class OrderItem {
 }
