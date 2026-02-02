@@ -2,10 +2,10 @@ package com.hotelmanagementsystem.roombookingservice.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
-import java.util.List;
+//import org.hibernate.annotations.JdbcTypeCode;
+//import org.hibernate.type.SqlTypes;
+//
+//import java.util.List;
 
 @Entity
 @Table(name = "room")
@@ -19,23 +19,23 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String room_name;
+    @Column(unique = true, nullable = false)
+    private String roomNumber;
 
-    @Column(nullable = false)
-    private String room_number;
+    @Enumerated(EnumType.STRING)
+    private RoomType roomType;
 
-    @Column(nullable = false)
-    private Double price_per_night;
+    private Double pricePerNight;
 
-    @Column(nullable = false)
-    private String room_type;
+    @Enumerated(EnumType.STRING)
+    private RoomStatus status;
 
-    @Column(nullable = false)
-    private String max_num_guests;
-
-    @Column(nullable = false)
+    private Integer capacity;
     private String description;
+    private String amenities; // e.g., "WiFi,TV,AC,MiniBar"
+
+    @Column(columnDefinition = "TEXT")
+    private String images;
 
     //the code below is for jsonb which is only supported by postgres
     //Once we use postgres then we will uncomment
@@ -47,11 +47,10 @@ public class Room {
 //    @Column(columnDefinition = "jsonb")
 //    private List<String> amenities;
 
-    //The code is supported by H2 console
-    @Column(columnDefinition = "TEXT")
-    private String amenities;
 
-    @Column(columnDefinition = "TEXT")
-    private String images;
+
 
 }
+
+
+
