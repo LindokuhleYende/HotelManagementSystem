@@ -10,8 +10,8 @@ import com.hotelmanagementsystem.roombookingservice.service.RoomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
@@ -26,6 +26,7 @@ public class RoomController {
     // ADMIN only - Create room
     @PostMapping
     @Operation(summary = "Create a room")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RoomResponse> createRoom(@RequestBody RoomRequest request) {
         return ResponseEntity.ok(roomService.createRoom(request));
     }
@@ -33,6 +34,7 @@ public class RoomController {
     // ADMIN only - Update room
     @PutMapping("/{id}")
     @Operation(summary = "Update room details")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RoomResponse> updateRoom(
             @PathVariable Long id,
             @RequestBody RoomRequest request) {
@@ -41,6 +43,7 @@ public class RoomController {
 
     // ADMIN only - Delete room
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
         roomService.deleteRoom(id);
         return ResponseEntity.ok().build();
@@ -67,6 +70,7 @@ public class RoomController {
 
     // ADMIN/STAFF - Update room status
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     public ResponseEntity<RoomResponse> updateRoomStatus(
             @PathVariable Long id,
             @RequestParam RoomStatus status) {
@@ -75,46 +79,11 @@ public class RoomController {
 
     // ADMIN - Update room price
     @PatchMapping("/{id}/price")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RoomResponse> updateRoomPrice(
             @PathVariable Long id,
             @RequestParam Double price) {
         return ResponseEntity.ok(roomService.updateRoomPrice(id, price));
     }
-//    private final RoomRepo roomRepo;
-//
-//    public RoomController(RoomRepo roomRepo) {
-//        this.roomRepo = roomRepo;
-//    }
-//
-//    @GetMapping
-//    public List<Room> findAll() {
-//        return roomRepo.findAll();
-//    }
-//
-//    @GetMapping("/{id}")
-//    public Room findById(@PathVariable Long id) {
-//        return roomRepo.findById(id).orElse(null);
-//    }
-//
-//    @PostMapping
-//    public Room create(@RequestBody Room room) {
-//        room.setId(null); // ensure create
-//        Room savedRoom = roomRepo.save(room);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(savedRoom).getBody();
-//    }
-//
-//    @PutMapping("/{id}")
-//    public Room update(@PathVariable Long id, @RequestBody Room room) {
-//        Optional<Room> existing = roomRepo.findById(id);
-//        if (existing.isEmpty()) {
-//            return null;
-//        }
-//        room.setId(id);
-//        return roomRepo.save(room);
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    public void delete(@PathVariable Long id) {
-//        roomRepo.deleteById(id);
-//    }
+
 }

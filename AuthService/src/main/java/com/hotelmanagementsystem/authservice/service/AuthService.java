@@ -193,7 +193,15 @@ public class AuthService {
 
             String token = authHeader.substring(7);
 
-            // Extract username from token first
+            // Check if token is expired first (will throw exception if malformed)
+            if (jwtTokenProvider.isTokenExpired(token)) {
+                return UserValidationResponse.builder()
+                        .valid(false)
+                        .message("Token is expired")
+                        .build();
+            }
+
+            // Extract username from token
             String username = jwtTokenProvider.extractUsername(token);
 
             if (username == null || username.isEmpty()) {
@@ -222,17 +230,6 @@ public class AuthService {
                         .build();
             }
 
-            // Load UserDetails for validation
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            // Validate token with UserDetails
-            if (!jwtTokenProvider.validateToken(token, userDetails)) {
-                return UserValidationResponse.builder()
-                        .valid(false)
-                        .message("Invalid or expired token")
-                        .build();
-            }
-
             // Return successful validation
             return UserValidationResponse.builder()
                     .valid(true)
@@ -241,6 +238,21 @@ public class AuthService {
                     .message("Token is valid")
                     .build();
 
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            return UserValidationResponse.builder()
+                    .valid(false)
+                    .message("Token has expired")
+                    .build();
+        } catch (io.jsonwebtoken.MalformedJwtException e) {
+            return UserValidationResponse.builder()
+                    .valid(false)
+                    .message("Malformed JWT token")
+                    .build();
+        } catch (io.jsonwebtoken.SignatureException e) {
+            return UserValidationResponse.builder()
+                    .valid(false)
+                    .message("Invalid JWT signature")
+                    .build();
         } catch (Exception e) {
             return UserValidationResponse.builder()
                     .valid(false)

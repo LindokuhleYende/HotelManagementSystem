@@ -1,15 +1,14 @@
 package com.hotelmanagementsystem.roombookingservice.controller;
 
-import com.hotelmanagementsystem.roombookingservice.Repository.BookingRepo;
 import com.hotelmanagementsystem.roombookingservice.dto.BookingRequest;
 import com.hotelmanagementsystem.roombookingservice.dto.BookingResponse;
-import com.hotelmanagementsystem.roombookingservice.model.Booking;
 import com.hotelmanagementsystem.roombookingservice.service.BookingService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -24,40 +23,52 @@ public class BookingController {
 
     // CUSTOMER/ADMIN - Create booking
     @PostMapping
+    @Operation(summary = "Create a booking")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN') and @bookingSecurity.canCreateBooking(#request.checkInDate, authentication)")
     public ResponseEntity<BookingResponse> createBooking(
             @RequestBody BookingRequest request,
             HttpServletRequest httpRequest) {
 
-        String username = httpRequest.getHeader("X-User-Id");
+        String username = httpRequest.getAttribute("X-User-Id").toString();
         return ResponseEntity.ok(bookingService.createBooking(request, username));
     }
 
     // STAFF/ADMIN - Confirm booking
     @PatchMapping("/{id}/confirm")
+    @Operation(summary = "Confirm a booking")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     public ResponseEntity<BookingResponse> confirmBooking(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.confirmBooking(id));
     }
 
     // STAFF/ADMIN - Check-in
     @PatchMapping("/{id}/checkin")
+    @Operation(summary = "Check-in a booking")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     public ResponseEntity<BookingResponse> checkIn(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.checkIn(id));
     }
 
     // STAFF/ADMIN - Check-out
     @PatchMapping("/{id}/checkout")
+    @Operation(summary = "Check-out a booking")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     public ResponseEntity<BookingResponse> checkOut(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.checkOut(id));
     }
 
     // STAFF/ADMIN - Get all bookings
     @GetMapping("/all")
+    @Operation(summary = "Get all bookings")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     public ResponseEntity<List<BookingResponse>> getAllBookings() {
         return ResponseEntity.ok(bookingService.getAllBookings());
     }
 
     // CUSTOMER - Get my bookings
     @GetMapping("/my-bookings")
+    @Operation(summary = "Get my bookings")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<BookingResponse>> getMyBookings(HttpServletRequest request) {
         String username = request.getHeader("X-User-Id");
         return ResponseEntity.ok(bookingService.getBookingsByUsername(username));
@@ -71,7 +82,18 @@ public class BookingController {
 
     // ADMIN - Cancel booking
     @PutMapping("/{id}/cancel")
+    @Operation(summary = "Cancel a booking")
+    @PreAuthorize("@bookingSecurity.canModifyBooking(#id, authentication)")
     public ResponseEntity<Void> cancelBooking(@PathVariable Long id) {
+        bookingService.cancelBooking(id);
+        return ResponseEntity.ok().build();
+    }
+
+    // Force cancel - ADMIN only
+    @DeleteMapping("/{id}/force-cancel")
+    @Operation(summary = "Force cancel a booking")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> forceCancelBooking(@PathVariable Long id) {
         bookingService.cancelBooking(id);
         return ResponseEntity.ok().build();
     }
