@@ -82,4 +82,20 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Invalid refresh token");
         }
     }
+
+    @GetMapping("/validate")
+    @Operation(summary = "Validate JWT token", description = "Validates the provided JWT token and returns user information")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token is valid"),
+            @ApiResponse(responseCode = "401", description = "Token is invalid or expired")
+    })
+    public ResponseEntity<UserValidationResponse> validateToken(
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            UserValidationResponse response = authService.validateToken(authHeader);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 }
