@@ -1,27 +1,31 @@
 package com.hotelmanagementsystem.foodorderservice.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
-@Table(name = "menu")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 public class Menu {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
     private String name;
 
-    @Column
-    public Double price;
+    private String description;
 
-    @Column
+    private BigDecimal price;
+
     private String category;
 
-    @Column
-    private String images;
+    private boolean available = true;
+
+    @ElementCollection
+    private List<String> images;
 }

@@ -1,53 +1,42 @@
 package com.hotelmanagementsystem.foodorderservice.entity;
 
+import com.hotelmanagementsystem.foodorderservice.model.OrderItem;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
-public class foodorderservice {   // ✅ Class name matches the entity
+@Table(name = "food_orders")
+public class FoodOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long bookingId;
+    private String bookingId;          // ✅ add this field, required by repository
+    private String customerUsername;
 
-    private Double totalPrice;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
-    private String status = "PENDING";
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "food_order_id") // matches OrderItem foreign key
+    private List<OrderItem> items = new ArrayList<>();
 
-    // Many-to-many relationship with MenuItem
-    @ManyToMany
-    @JoinTable(
-            name = "food_order_item",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "menu_item_id")
-    )
-    private List<MenuItem> items;
-
-    // Constructors
-    public FoodOrder() {}  // ✅ Default constructor
-
-    public FoodOrder(Long bookingId, List<MenuItem> items, Double totalPrice) {
-        this.bookingId = bookingId;
-        this.items = items;
-        this.totalPrice = totalPrice;
-        this.status = "PENDING";
+    public enum Status {
+        PENDING,
+        ACCEPTED,
+        PREPARING,
+        READY_FOR_PICKUP,
+        PICKED_UP,
+        ON_THE_WAY,
+        DELIVERED,
+        COMPLETED,
+        CANCELLED
     }
-
-    // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public Long getBookingId() { return bookingId; }
-    public void setBookingId(Long bookingId) { this.bookingId = bookingId; }
-
-    public List<MenuItem> getItems() { return items; }
-    public void setItems(List<MenuItem> items) { this.items = items; }
-
-    public Double getTotalPrice() { return totalPrice; }
-    public void setTotalPrice(Double totalPrice) { this.totalPrice = totalPrice; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
 }
