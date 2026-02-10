@@ -1,88 +1,67 @@
 package com.hotelmanagementsystem.foodorderservice.controller;
 
-import com.hotelmanagementsystem.foodorderservice.entity.Menu;
-import com.hotelmanagementsystem.foodorderservice.model.FoodOrder;
-import com.hotelmanagementsystem.foodorderservice.model.OrderItem;
+import com.hotelmanagementsystem.foodorderservice.entity.FoodOrder;
 import com.hotelmanagementsystem.foodorderservice.repository.FoodOrderRepository;
-import com.hotelmanagementsystem.foodorderservice.repository.MenuItemRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
     private final FoodOrderRepository foodOrderRepository;
-    private final MenuItemRepository menuRepository;
 
-    public OrderController(FoodOrderRepository foodOrderRepository,
-                           MenuItemRepository menuRepository) {
-        this.foodOrderRepository = foodOrderRepository;
-        this.menuRepository = menuRepository;
-    }
-
-    /**
-     * Create a new food order
-     */
     @PostMapping
-    public FoodOrder createOrder(@RequestBody FoodOrder order) {
-        double totalPrice = 0;
+    public ResponseEntity<FoodOrder> createOrder(
+            @RequestBody FoodOrder order,
+            HttpServletRequest request) {
 
-        for (OrderItem item : order.getItems()) {
-            // Fetch Menu item from DB
-            Menu menu = menuRepository.findById(item.getMenu().getId())
-                    .orElseThrow(() -> new RuntimeException("Menu item not found"));
-
-            item.setMenu(menu);
-            item.setSubtotal(menu.getPrice() * item.getQuantity());
-            totalPrice += item.getSubtotal();
+        String username = (String) request.getAttribute("X-User-Id");
+        if (username == null || username.isEmpty()) {
+            return ResponseEntity.status(401).build(); // Unauthorized if no user info
         }
 
-        order.setTotalPrice(totalPrice);
+        order.setCustomerUsername(username);
         order.setStatus(FoodOrder.Status.PENDING);
 
-        return foodOrderRepository.save(order);
+        FoodOrder savedOrder = foodOrderRepository.save(order);
+        return ResponseEntity.ok(savedOrder);
     }
-
-    /**
-     * Get order by ID
-     */
-    @GetMapping("/{id}")
-    public FoodOrder getOrderById(@PathVariable Long id) {
-        return foodOrderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-    }
-
 
     @GetMapping
-    public List<FoodOrder> getAllOrders(){
-        return foodOrderRepository.findAll();
-}
+    public ResponseEntity<List<FoodOrder>> getAllOrders(HttpServletRequest request) {
 
+        String role = (String) request.getAttribute("X-User-Role");
+        if (role == null || (!role.equals("ADMIN") && !role.equals("STAFF"))) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
 
-    /**
-     * Get all orders for a booking
-     */
-    @GetMapping("/booking/{bookingId}")
-    public List<FoodOrder> getOrdersByBooking(@PathVariable String bookingId) {
-        return foodOrderRepository.findByBookingId(bookingId);
+        List<FoodOrder> orders = foodOrderRepository.findAll();
+        return ResponseEntity.ok(orders);
     }
 
-    /**
-     * Update order status (MODERATOR / ADMIN)
-     * Example:
-     * PUT /orders/1/status?status=DELIVERED
-     */
-    @PutMapping("/{id}/status")
-    public FoodOrder updateOrderStatus(
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrder(
             @PathVariable Long id,
-            @RequestParam FoodOrder.Status status
-    ) {
-        FoodOrder order = foodOrderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+            HttpServletRequest request) {
 
-        order.setStatus(status);
-        return foodOrderRepository.save(order);
+        String role = (String) request.getAttribute("X-User-Role");
+        if (role == null || !role.equals("ADMIN")) {
+            return ResponseEntity.status(403).build();
+        }
+
+        if (!foodOrderRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        foodOrderRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

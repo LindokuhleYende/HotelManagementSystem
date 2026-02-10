@@ -3,7 +3,7 @@ package com.hotelmanagementsystem.foodorderservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -1,36 +1,28 @@
 package com.hotelmanagementsystem.foodorderservice.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "food_orders")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 public class FoodOrder {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;  // No @Id, just a plain field
 
-    private String bookingId;
+    private String customerUsername;
 
-    private Double totalPrice;
-
-    @Enumerated(EnumType.STRING)
     private Status status;
 
-    private LocalDate orderDate = LocalDate.now();
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "food_order_id") // foreign key in OrderItem
-    private List<OrderItem> items;
+    private List<OrderItem> items = new ArrayList<>();
 
     public enum Status {
-        PENDING, CONFIRMED, PREPARING, DELIVERED, COMPLETED, CANCELLED
+        PENDING,
+        PREPARING,
+        DELIVERED,
+        COMPLETED,
+        CANCELLED
     }
 }
