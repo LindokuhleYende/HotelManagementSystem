@@ -761,24 +761,6 @@ curl http://localhost:8081/actuator/metrics/jvm.memory.used
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Authors
-
-- Your Name - Initial work - [YourGitHub](https://github.com/yourusername)
-
-## 🙏 Acknowledgments
-
-- Spring Boot team for excellent documentation
-- Netflix OSS for Eureka
-- JWT.io for JWT resources
-- PostgreSQL community
-
-## 📞 Support
-
-For support, email your-email@example.com or open an issue in the repository.
 
 ## 🗺️ Roadmap
 
@@ -795,6 +777,5 @@ For support, email your-email@example.com or open an issue in the repository.
 
 ---
 
-**Built with ❤️ using Spring Boot & Microservices Architecture**
 
 
