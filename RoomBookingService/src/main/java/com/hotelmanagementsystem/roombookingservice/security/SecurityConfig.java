@@ -41,6 +41,11 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/eureka/**").permitAll()
+
+
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
