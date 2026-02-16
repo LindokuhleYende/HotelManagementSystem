@@ -39,7 +39,7 @@ public class OrderController {
     public ResponseEntity<List<FoodOrder>> getAllOrders(HttpServletRequest request) {
 
         String role = (String) request.getAttribute("X-User-Role");
-        if (role == null || (!role.equals("ADMIN") && !role.equals("STAFF"))) {
+        if (role == null || (!role.equals("ADMIN") && !role.equals("MODERATOR"))) {
             return ResponseEntity.status(403).build(); // Forbidden
         }
 

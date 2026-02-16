@@ -1,10 +1,16 @@
 package com.hotelmanagementsystem.foodorderservice.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "menu_items")
-
+@Getter
+@Setter
 public class MenuItem {
 
     @Id
@@ -12,33 +18,12 @@ public class MenuItem {
     private Long id;
 
     private String name;
-    private Double price;
 
-    // Constructors
-    public MenuItem() {}
+    private String description;       // <-- add this
+    private String category;          // <-- add this
+    private boolean available;        // <-- add this
+    private BigDecimal price;
 
-    public MenuItem(String name, Double price) {
-        this.name = name;
-        this.price = price;
-    }
-
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Double getPrice() {
-        return price;
-    }
-    public void setPrice(Double price) {
-        this.price = price;
-    }
+    @ElementCollection
+    private List<String> images;      // <-- add this if you want multiple images
 }

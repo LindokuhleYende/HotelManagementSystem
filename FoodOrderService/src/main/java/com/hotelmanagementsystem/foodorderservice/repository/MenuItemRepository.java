@@ -1,9 +1,8 @@
 package com.hotelmanagementsystem.foodorderservice.repository;
 
-import com.hotelmanagementsystem.foodorderservice.entity.Menu;
+import com.hotelmanagementsystem.foodorderservice.entity.MenuItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MenuItemRepository extends JpaRepository<Menu, Long> {
-}
+public interface MenuItemRepository extends JpaRepository<MenuItem, Long> {}

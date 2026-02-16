@@ -1,6 +1,6 @@
 package com.hotelmanagementsystem.foodorderservice.controller;
 
-import com.hotelmanagementsystem.foodorderservice.entity.Menu;
+import com.hotelmanagementsystem.foodorderservice.entity.MenuItem;
 import com.hotelmanagementsystem.foodorderservice.repository.MenuItemRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -17,32 +17,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MenuController {
 
-    private final MenuItemRepository menuRepository;
+    private final MenuItemRepository menuRepository;  // now entity-based
 
     @GetMapping
-    public ResponseEntity<List<Menu>> getAllMenuItems() {
-        List<Menu> items = menuRepository.findAll();
+    public ResponseEntity<List<MenuItem>> getAllMenuItems() {
+        List<MenuItem> items = menuRepository.findAll();
         return ResponseEntity.ok(items);
     }
 
     @PostMapping
-    public ResponseEntity<Menu> createMenuItem(
-            @RequestBody Menu menu,
-            HttpServletRequest request) {
+    public ResponseEntity<MenuItem> createMenuItem(@RequestBody MenuItem menuItem,
+                                                   HttpServletRequest request) {
 
         String role = (String) request.getAttribute("X-User-Role");
-        if (role == null || (!role.equals("ADMIN") && !role.equals("STAFF"))) {
+        if (role == null || (!role.equals("ADMIN") && !role.equals("MODERATOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Menu savedMenu = menuRepository.save(menu);
+        MenuItem savedMenu = menuRepository.save(menuItem);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedMenu);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMenuItem(
-            @PathVariable Long id,
-            HttpServletRequest request) {
+    public ResponseEntity<Void> deleteMenuItem(@PathVariable Long id,
+                                               HttpServletRequest request) {
 
         String role = (String) request.getAttribute("X-User-Role");
         if (!"ADMIN".equals(role)) {
@@ -58,13 +56,12 @@ public class MenuController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Menu> updateMenuItem(
-            @PathVariable Long id,
-            @RequestBody Menu updatedMenu,
-            HttpServletRequest request) {
+    public ResponseEntity<MenuItem> updateMenuItem(@PathVariable Long id,
+                                                   @RequestBody MenuItem updatedMenu,
+                                                   HttpServletRequest request) {
 
         String role = (String) request.getAttribute("X-User-Role");
-        if (role == null || (!role.equals("ADMIN") && !role.equals("STAFF"))) {
+        if (role == null || (!role.equals("ADMIN") && !role.equals("MODERATOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -76,7 +73,7 @@ public class MenuController {
                     menu.setCategory(updatedMenu.getCategory());
                     menu.setAvailable(updatedMenu.isAvailable());
                     menu.setImages(updatedMenu.getImages());
-                    Menu savedMenu = menuRepository.save(menu);
+                    MenuItem savedMenu = menuRepository.save(menu);
                     return ResponseEntity.ok(savedMenu);
                 })
                 .orElse(ResponseEntity.notFound().build());
