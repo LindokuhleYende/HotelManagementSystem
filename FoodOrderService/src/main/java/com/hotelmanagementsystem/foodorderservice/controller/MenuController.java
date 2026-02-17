@@ -1,7 +1,7 @@
 package com.hotelmanagementsystem.foodorderservice.controller;
 
 import com.hotelmanagementsystem.foodorderservice.entity.Menu;
-import com.hotelmanagementsystem.foodorderservice.repository.MenuItemRepository;
+import com.hotelmanagementsystem.foodorderservice.repository.MenuRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,32 +17,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MenuController {
 
-    private final MenuItemRepository menuRepository;
+    private final MenuRepository menuRepository;
 
     @GetMapping
     public ResponseEntity<List<Menu>> getAllMenuItems() {
-        List<Menu> items = menuRepository.findAll();
-        return ResponseEntity.ok(items);
+        return ResponseEntity.ok(menuRepository.findAll());
     }
 
     @PostMapping
-    public ResponseEntity<Menu> createMenuItem(
-            @RequestBody Menu menu,
-            HttpServletRequest request) {
+    public ResponseEntity<Menu> createMenuItem(@RequestBody Menu menuItem,
+                                                   HttpServletRequest request) {
 
         String role = (String) request.getAttribute("X-User-Role");
-        if (role == null || (!role.equals("ADMIN") && !role.equals("STAFF"))) {
+        if (role == null || (!role.equals("ADMIN") && !role.equals("MODERATOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Menu savedMenu = menuRepository.save(menu);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedMenu);
+        return ResponseEntity.status(HttpStatus.CREATED).body(menuRepository.save(menuItem));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMenuItem(
-            @PathVariable Long id,
-            HttpServletRequest request) {
+    public ResponseEntity<Void> deleteMenuItem(@PathVariable Long id,
+                                               HttpServletRequest request) {
 
         String role = (String) request.getAttribute("X-User-Role");
         if (!"ADMIN".equals(role)) {
@@ -58,26 +54,24 @@ public class MenuController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Menu> updateMenuItem(
-            @PathVariable Long id,
-            @RequestBody Menu updatedMenu,
-            HttpServletRequest request) {
+    public ResponseEntity<Menu> updateMenuItem(@PathVariable Long id,
+                                                   @RequestBody Menu updatedMenu,
+                                                   HttpServletRequest request) {
 
         String role = (String) request.getAttribute("X-User-Role");
-        if (role == null || (!role.equals("ADMIN") && !role.equals("STAFF"))) {
+        if (role == null || (!role.equals("ADMIN") && !role.equals("MODERATOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         return menuRepository.findById(id)
-                .map(menu -> {
-                    menu.setName(updatedMenu.getName());
-                    menu.setDescription(updatedMenu.getDescription());
-                    menu.setPrice(updatedMenu.getPrice());
-                    menu.setCategory(updatedMenu.getCategory());
-                    menu.setAvailable(updatedMenu.isAvailable());
-                    menu.setImages(updatedMenu.getImages());
-                    Menu savedMenu = menuRepository.save(menu);
-                    return ResponseEntity.ok(savedMenu);
+                .map(menuItem -> {
+                    menuItem.setName(updatedMenu.getName());
+                    menuItem.setDescription(updatedMenu.getDescription());
+                    menuItem.setPrice(updatedMenu.getPrice());
+                    menuItem.setCategory(updatedMenu.getCategory());
+                    menuItem.setAvailable(updatedMenu.isAvailable());
+                    menuItem.setImages(updatedMenu.getImages());
+                    return ResponseEntity.ok(menuRepository.save(menuItem));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }

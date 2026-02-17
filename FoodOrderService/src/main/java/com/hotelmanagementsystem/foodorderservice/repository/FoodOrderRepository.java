@@ -9,12 +9,9 @@ import java.util.List;
 @Repository
 public interface FoodOrderRepository extends JpaRepository<FoodOrder, Long> {
 
-    // Find orders by the associated booking ID
     List<FoodOrder> findByBookingId(String bookingId);
 
-    // Find orders by the username of the customer who placed them
     List<FoodOrder> findByCustomerUsername(String customerUsername);
 
-    // Find orders by their current status (e.g., PENDING, COMPLETED)
     List<FoodOrder> findByStatus(FoodOrder.Status status);
 }

@@ -1,6 +1,6 @@
 package com.hotelmanagementsystem.foodorderservice.entity;
 
-import com.hotelmanagementsystem.foodorderservice.model.OrderItem;
+import com.hotelmanagementsystem.foodorderservice.entity.OrderItemEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,15 +18,15 @@ public class FoodOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String bookingId;          // ✅ add this field, required by repository
+    private String bookingId;
     private String customerUsername;
 
     @Enumerated(EnumType.STRING)
     private Status status;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "food_order_id") // matches OrderItem foreign key
-    private List<OrderItem> items = new ArrayList<>();
+    @JoinColumn(name = "food_order_id")
+    private List<OrderItemEntity> items = new ArrayList<>();
 
     public enum Status {
         PENDING,

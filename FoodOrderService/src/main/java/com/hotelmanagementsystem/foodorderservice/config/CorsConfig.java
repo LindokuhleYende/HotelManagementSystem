@@ -13,11 +13,11 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")              // Allow all endpoints
-                        .allowedOrigins("http://localhost:8080") // Your frontend URL
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                registry.addMapping("/**") // allow all paths
+                        .allowedOrigins("http://localhost:3000") // frontend URL
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .allowCredentials(true); // allow cookies if needed
             }
         };
     }

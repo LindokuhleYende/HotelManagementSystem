@@ -19,19 +19,20 @@ public class OrderController {
     private final FoodOrderRepository foodOrderRepository;
 
     @PostMapping
-    public ResponseEntity<FoodOrder> createOrder(
-            @RequestBody FoodOrder order,
-            HttpServletRequest request) {
+    public ResponseEntity<FoodOrder> createOrder(@RequestBody FoodOrder order,
+                                                 HttpServletRequest request) {
 
         String username = (String) request.getAttribute("X-User-Id");
+
         if (username == null || username.isEmpty()) {
-            return ResponseEntity.status(401).build(); // Unauthorized if no user info
+            return ResponseEntity.status(401).build();
         }
 
         order.setCustomerUsername(username);
         order.setStatus(FoodOrder.Status.PENDING);
 
         FoodOrder savedOrder = foodOrderRepository.save(order);
+
         return ResponseEntity.ok(savedOrder);
     }
 
@@ -39,21 +40,23 @@ public class OrderController {
     public ResponseEntity<List<FoodOrder>> getAllOrders(HttpServletRequest request) {
 
         String role = (String) request.getAttribute("X-User-Role");
-        if (role == null || (!role.equals("ADMIN") && !role.equals("STAFF"))) {
-            return ResponseEntity.status(403).build(); // Forbidden
+
+        if (role == null || (!role.equals("ADMIN") && !role.equals("MODERATOR"))) {
+            return ResponseEntity.status(403).build();
         }
 
         List<FoodOrder> orders = foodOrderRepository.findAll();
+
         return ResponseEntity.ok(orders);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(
-            @PathVariable Long id,
-            HttpServletRequest request) {
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id,
+                                            HttpServletRequest request) {
 
         String role = (String) request.getAttribute("X-User-Role");
-        if (role == null || !role.equals("ADMIN")) {
+
+        if (!"ADMIN".equals(role)) {
             return ResponseEntity.status(403).build();
         }
 
@@ -62,6 +65,7 @@ public class OrderController {
         }
 
         foodOrderRepository.deleteById(id);
+
         return ResponseEntity.noContent().build();
     }
 }
