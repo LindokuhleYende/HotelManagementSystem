@@ -18,11 +18,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/menu")
 @RequiredArgsConstructor
-@Tag(name = "FoodOrder API", description = "This is an API to order food from the menu")
+@Tag(name = "Menu API", description = "Endpoints for managing menu items")
 public class MenuController {
 
     private final MenuRepository menuRepository;
 
+    // --- READ ---
     @GetMapping
     @Operation(summary = "Get all menu items", description = "Retrieves a complete list of all available menu items")
     @ApiResponses(value = {
@@ -33,14 +34,18 @@ public class MenuController {
         return ResponseEntity.ok(menuRepository.findAll());
     }
 
+    // --- CREATE ---
     @PostMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    @Operation(summary = "Create a new menu item", description = "Adds a new item to the menu")
     public ResponseEntity<Menu> createMenuItem(@RequestBody Menu menuItem) {
         return ResponseEntity.status(HttpStatus.CREATED).body(menuRepository.save(menuItem));
     }
 
+    // --- UPDATE ---
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    @Operation(summary = "Update a menu item", description = "Updates an existing menu item by ID")
     public ResponseEntity<Menu> updateMenuItem(@PathVariable Long id, @RequestBody Menu updatedMenu) {
         return menuRepository.findById(id)
                 .map(menuItem -> {
@@ -55,8 +60,10 @@ public class MenuController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // --- DELETE ---
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete a menu item", description = "Deletes a menu item by ID")
     public ResponseEntity<Void> deleteMenuItem(@PathVariable Long id) {
         if (!menuRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
