@@ -41,8 +41,8 @@ about each service you can view the each module readme for more details in that 
 ┌──────────┐   ┌──────────┐   ┌──────────┐   
 │   Auth   │   │   Room   │   │   Food   │   
 │ Service  │   │ Booking  │   │  Order   │   
-│  (8081)  │   │ Service  │   │ Service  │  
-│          │   │  (8082)  │   │  (8083)  │  
+│  (8066)  │   │ Service  │   │ Service  │  
+│          │   │  (8062)  │   │  (8083)  │  
 └──────────┘   └──────────┘   └──────────┘   
      │              │               │
      │              │               │
@@ -78,7 +78,7 @@ about each service you can view the each module readme for more details in that 
     - Booking creation and management
     - Room pricing management
 
-5. **Food Order Service** - Port 8064
+5. **Food Order Service** - Port 8083
     - Menu management
     - Food order processing
     - Room service orders
@@ -228,11 +228,11 @@ docker-compose up -d
 - **Eureka Dashboard**: http://localhost:8761
 - **Auth Service Swagger**: http://localhost:8066/swagger-ui.html
 - **Room Booking Service Swagger**: http://localhost:8062/swagger-ui.html
-- **Food Order Service Swagger**: http://localhost:8064/swagger-ui.html
+- **Food Order Service Swagger**: http://localhost:8083/swagger-ui.html
 
 ## 📡 API Endpoints
 
-### Authentication Service (Port 8081)
+### Authentication Service (Port 8066)
 
 #### Public Endpoints
 ```http
@@ -254,7 +254,7 @@ PUT    /api/auth/users/{id}/role # Update user role
 DELETE /api/auth/users/{id}      # Delete user
 ```
 
-### Room Booking Service (Port 8082)
+### Room Booking Service (Port 8062)
 
 #### Room Management
 ```http
