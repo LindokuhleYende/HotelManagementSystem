@@ -1,7 +1,7 @@
 package com.hotelmanagementsystem.foodorderservice.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDate;
 
 @Entity
@@ -27,7 +27,8 @@ public class Order {
     @Column
     private Integer quantity;
 
-    @Column
+    // Fixed: Maps perfectly to Flyway's NUMERIC type
+    @Column(columnDefinition = "NUMERIC(10,2)")
     private Double totalPrice;
 
     @Column

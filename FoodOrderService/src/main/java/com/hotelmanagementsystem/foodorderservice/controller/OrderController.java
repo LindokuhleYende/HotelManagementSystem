@@ -1,8 +1,8 @@
 package com.hotelmanagementsystem.foodorderservice.controller;
 
+import com.hotelmanagementsystem.foodorderservice.entity.FoodOrder;
 import com.hotelmanagementsystem.foodorderservice.entity.Menu;
-import com.hotelmanagementsystem.foodorderservice.model.FoodOrder;
-import com.hotelmanagementsystem.foodorderservice.model.OrderItem;
+import com.hotelmanagementsystem.foodorderservice.entity.MenuItem;
 import com.hotelmanagementsystem.foodorderservice.repository.FoodOrderRepository;
 import com.hotelmanagementsystem.foodorderservice.repository.MenuItemRepository;
 import org.springframework.web.bind.annotation.*;
@@ -29,18 +29,17 @@ public class OrderController {
     public FoodOrder createOrder(@RequestBody FoodOrder order) {
         double totalPrice = 0;
 
-        for (OrderItem item : order.getItems()) {
-            // Fetch Menu item from DB
-            Menu menu = menuRepository.findById(item.getMenu().getId())
+        // Loop through the list of MenuItems directly attached to the order
+        for (MenuItem item : order.getItems()) {
+            // FIXED: Assigned to MenuItem type instead of Menu type
+            Menu menuItem = menuRepository.findById(item.getId())
                     .orElseThrow(() -> new RuntimeException("Menu item not found"));
 
-            item.setMenu(menu);
-            item.setSubtotal(menu.getPrice() * item.getQuantity());
-            totalPrice += item.getSubtotal();
+            totalPrice += menuItem.getPrice();
         }
 
         order.setTotalPrice(totalPrice);
-        order.setStatus(FoodOrder.Status.PENDING);
+        order.setStatus("PENDING");
 
         return foodOrderRepository.save(order);
     }
@@ -54,30 +53,30 @@ public class OrderController {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
-
+    /**
+     * Get all orders
+     */
     @GetMapping
     public List<FoodOrder> getAllOrders(){
         return foodOrderRepository.findAll();
-}
-
+    }
 
     /**
      * Get all orders for a booking
      */
     @GetMapping("/booking/{bookingId}")
-    public List<FoodOrder> getOrdersByBooking(@PathVariable String bookingId) {
+    public List<FoodOrder> getOrdersByBooking(@PathVariable Long bookingId) {
+        // FIXED: Dropped String.valueOf() to pass the raw Long ID cleanly
         return foodOrderRepository.findByBookingId(bookingId);
     }
 
     /**
-     * Update order status (MODERATOR / ADMIN)
-     * Example:
-     * PUT /orders/1/status?status=DELIVERED
+     * Update order status
      */
     @PutMapping("/{id}/status")
     public FoodOrder updateOrderStatus(
             @PathVariable Long id,
-            @RequestParam FoodOrder.Status status
+            @RequestParam String status
     ) {
         FoodOrder order = foodOrderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));

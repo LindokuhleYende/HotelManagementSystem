@@ -16,7 +16,8 @@ public class Menu {
     @Column
     private String name;
 
-    @Column
+    // Fixed: Maps perfectly to Flyway's NUMERIC type
+    @Column(columnDefinition = "NUMERIC(10,2)")
     public Double price;
 
     @Column

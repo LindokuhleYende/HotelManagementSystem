@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@Entity
+
 @Table(name = "food_orders")
 @Data
 @NoArgsConstructor

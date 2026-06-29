@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-public class foodorderservice {   // ✅ Class name matches the entity
+public class FoodOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,11 +12,12 @@ public class foodorderservice {   // ✅ Class name matches the entity
 
     private Long bookingId;
 
+    // Fixed: Maps perfectly to Flyway's NUMERIC type
+    @Column(columnDefinition = "NUMERIC(10,2)")
     private Double totalPrice;
 
     private String status = "PENDING";
 
-    // Many-to-many relationship with MenuItem
     @ManyToMany
     @JoinTable(
             name = "food_order_item",
@@ -26,7 +27,7 @@ public class foodorderservice {   // ✅ Class name matches the entity
     private List<MenuItem> items;
 
     // Constructors
-    public FoodOrder() {}  // ✅ Default constructor
+    public FoodOrder() {}
 
     public FoodOrder(Long bookingId, List<MenuItem> items, Double totalPrice) {
         this.bookingId = bookingId;
