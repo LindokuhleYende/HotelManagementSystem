@@ -1,4 +1,3 @@
-
 package com.hotelmanagementsystem.authservice.service;
 
 import com.hotelmanagementsystem.authservice.dto.*;
@@ -180,5 +179,85 @@ public class AuthService {
 
         refreshTokenRepository.save(refreshToken);
         return tokenValue;
+    }
+
+    public UserValidationResponse validateToken(String authHeader) {
+        try {
+            // Remove "Bearer " prefix
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return UserValidationResponse.builder()
+                        .valid(false)
+                        .message("Invalid authorization header format")
+                        .build();
+            }
+
+            String token = authHeader.substring(7);
+
+            // Check if token is expired first (will throw exception if malformed)
+            if (jwtTokenProvider.isTokenExpired(token)) {
+                return UserValidationResponse.builder()
+                        .valid(false)
+                        .message("Token is expired")
+                        .build();
+            }
+
+            // Extract username from token
+            String username = jwtTokenProvider.extractUsername(token);
+
+            if (username == null || username.isEmpty()) {
+                return UserValidationResponse.builder()
+                        .valid(false)
+                        .message("Invalid token: unable to extract username")
+                        .build();
+            }
+
+            // Load user from database
+            Users user = userRepository.findByUsername(username)
+                    .orElse(null);
+
+            if (user == null) {
+                return UserValidationResponse.builder()
+                        .valid(false)
+                        .message("User not found")
+                        .build();
+            }
+
+            // Check if user is active
+            if (!user.getIsActive()) {
+                return UserValidationResponse.builder()
+                        .valid(false)
+                        .message("User account is disabled")
+                        .build();
+            }
+
+            // Return successful validation
+            return UserValidationResponse.builder()
+                    .valid(true)
+                    .username(user.getUsername())
+                    .role(user.getRole().name())
+                    .message("Token is valid")
+                    .build();
+
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            return UserValidationResponse.builder()
+                    .valid(false)
+                    .message("Token has expired")
+                    .build();
+        } catch (io.jsonwebtoken.MalformedJwtException e) {
+            return UserValidationResponse.builder()
+                    .valid(false)
+                    .message("Malformed JWT token")
+                    .build();
+        } catch (io.jsonwebtoken.SignatureException e) {
+            return UserValidationResponse.builder()
+                    .valid(false)
+                    .message("Invalid JWT signature")
+                    .build();
+        } catch (Exception e) {
+            return UserValidationResponse.builder()
+                    .valid(false)
+                    .message("Token validation failed: " + e.getMessage())
+                    .build();
+        }
     }
 }

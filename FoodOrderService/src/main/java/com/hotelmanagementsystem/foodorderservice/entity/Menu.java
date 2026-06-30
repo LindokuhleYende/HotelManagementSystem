@@ -1,28 +1,27 @@
 package com.hotelmanagementsystem.foodorderservice.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.List;
+
+@Getter
+@Setter
 @Entity
-@Table(name = "menu")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "menu_items")
 public class Menu {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
     private String name;
-
-    // Fixed: Maps perfectly to Flyway's NUMERIC type
-    @Column(columnDefinition = "NUMERIC(10,2)")
-    public Double price;
-
-    @Column
+    private String description;
+    private double price;
     private String category;
+    private boolean available;
 
-    @Column
-    private String images;
+    @ElementCollection
+    private List<String> images;
 }

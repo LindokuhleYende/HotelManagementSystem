@@ -1,33 +1,73 @@
 package com.hotelmanagementsystem.foodorderservice.controller;
 
 import com.hotelmanagementsystem.foodorderservice.entity.Menu;
-import com.hotelmanagementsystem.foodorderservice.repository.MenuItemRepository;
+import com.hotelmanagementsystem.foodorderservice.repository.MenuRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/menu")
+@RequiredArgsConstructor
+@Tag(name = "Menu API", description = "Endpoints for managing menu items")
 public class MenuController {
 
-    private final MenuItemRepository menuRepository;
+    private final MenuRepository menuRepository;
 
-    public MenuController(MenuItemRepository menuRepository) {
-        this.menuRepository = menuRepository;
-    }
-
-    @PostMapping
-    public Menu createMenuItem(@RequestBody Menu menu) {
-        // Now category and images will be saved correctly
-        return menuRepository.save(menu);
-    }
-@DeleteMapping
-public Menu deleteMenuItem(@RequestBody Menu menu){
-        menuRepository.delete(menu);
-        return menu;
-}
+    // --- READ ---
     @GetMapping
-    public List<Menu> getAllMenuItems() {
-        return menuRepository.findAll();
+    @Operation(summary = "Get all menu items", description = "Retrieves a complete list of all available menu items")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<List<Menu>> getAllMenuItems() {
+        return ResponseEntity.ok(menuRepository.findAll());
+    }
+
+    // --- CREATE ---
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    @Operation(summary = "Create a new menu item", description = "Adds a new item to the menu")
+    public ResponseEntity<Menu> createMenuItem(@RequestBody Menu menuItem) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(menuRepository.save(menuItem));
+    }
+
+    // --- UPDATE ---
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    @Operation(summary = "Update a menu item", description = "Updates an existing menu item by ID")
+    public ResponseEntity<Menu> updateMenuItem(@PathVariable Long id, @RequestBody Menu updatedMenu) {
+        return menuRepository.findById(id)
+                .map(menuItem -> {
+                    // FIXED: Removed description and available checks to match your entity definition
+                    menuItem.setName(updatedMenu.getName());
+                    menuItem.setPrice(updatedMenu.getPrice());
+                    menuItem.setCategory(updatedMenu.getCategory());
+                    menuItem.setImages(updatedMenu.getImages());
+                    return ResponseEntity.ok(menuRepository.save(menuItem));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // --- DELETE ---
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete a menu item", description = "Deletes a menu item by ID")
+    public ResponseEntity<Void> deleteMenuItem(@PathVariable Long id) {
+        if (!menuRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        menuRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

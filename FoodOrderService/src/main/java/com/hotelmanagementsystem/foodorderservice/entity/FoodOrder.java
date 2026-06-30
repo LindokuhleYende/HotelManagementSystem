@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-public class FoodOrder {
+@Table(name = "food_order") // Explicitly names the table to match your Flyway script
+public class FoodOrder {   // 👈 FIXED: Changed back to FoodOrder to match the file name and constructor types
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,12 +13,12 @@ public class FoodOrder {
 
     private Long bookingId;
 
-    // Fixed: Maps perfectly to Flyway's NUMERIC type
-    @Column(columnDefinition = "NUMERIC(10,2)")
+    @Column(columnDefinition = "NUMERIC(10,2)") // Preserves the exact decimal precision mapping
     private Double totalPrice;
 
     private String status = "PENDING";
 
+    // Many-to-many relationship with MenuItem
     @ManyToMany
     @JoinTable(
             name = "food_order_item",
@@ -27,7 +28,7 @@ public class FoodOrder {
     private List<MenuItem> items;
 
     // Constructors
-    public FoodOrder() {}
+    public FoodOrder() {}  // 👈 FIXED: Now correctly matches the class type definition above
 
     public FoodOrder(Long bookingId, List<MenuItem> items, Double totalPrice) {
         this.bookingId = bookingId;
